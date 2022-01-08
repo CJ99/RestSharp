@@ -1,4 +1,4 @@
-//   Copyright © 2009-2020 John Sheehan, Andrew Young, Alexey Zimarev and RestSharp community
+//   Copyright © 2009-2021 John Sheehan, Andrew Young, Alexey Zimarev and RestSharp community
 //
 //   Licensed under the Apache License, Version 2.0 (the "License");
 //   you may not use this file except in compliance with the License.
@@ -12,31 +12,30 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License. 
 
-using System.Collections.Generic;
+namespace RestSharp.Serializers;
 
-namespace RestSharp.Serialization
-{
-    public static class ContentType
-    {
-        public const string Json = "application/json";
+public static class ContentType {
+    public const string Json = "application/json";
 
-        public const string Xml = "application/xml";
+    public const string Xml = "application/xml";
 
-        public static readonly Dictionary<DataFormat, string> FromDataFormat =
-            new Dictionary<DataFormat, string>
-            {
-                {DataFormat.Xml, Xml},
-                {DataFormat.Json, Json}
-            };
+    public const string Plain = "text/plain";
 
-        public static readonly string[] JsonAccept =
-        {
-            "application/json", "text/json", "text/x-json", "text/javascript", "*+json"
+    public const string File = "application/octet-stream";
+
+    public const string GZip = "application/x-gzip";
+
+    public static readonly Dictionary<DataFormat, string> FromDataFormat =
+        new() {
+            { DataFormat.Xml, Xml },
+            { DataFormat.Json, Json },
         };
 
-        public static readonly string[] XmlAccept =
-        {
-            "application/xml", "text/xml", "*+xml", "*"
-        };
-    }
+    public static readonly string[] JsonAccept = {
+        "application/json", "text/json", "text/x-json", "text/javascript", "*+json"
+    };
+
+    public static readonly string[] XmlAccept = {
+        "application/xml", "text/xml", "*+xml", "*"
+    };
 }

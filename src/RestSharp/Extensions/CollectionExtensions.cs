@@ -1,4 +1,4 @@
-//   Copyright © 2009-2020 John Sheehan, Andrew Young, Alexey Zimarev and RestSharp community
+//   Copyright © 2009-2021 John Sheehan, Andrew Young, Alexey Zimarev and RestSharp community
 //
 //   Licensed under the Apache License, Version 2.0 (the "License");
 //   you may not use this file except in compliance with the License.
@@ -12,16 +12,10 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License. 
 
-using System;
-using System.Collections.Generic;
+namespace RestSharp.Extensions;
 
-namespace RestSharp.Extensions
-{
-    internal static class CollectionExtensions
-    {
-        public static void ForEach<T>(this IEnumerable<T> items, Action<T> action)
-        {
-            foreach (var item in items) action(item);
-        }
+static class CollectionExtensions {
+    public static void ForEach<T>(this IEnumerable<T> items, Action<T> action) {
+        foreach (var item in items) action(item);
     }
 }

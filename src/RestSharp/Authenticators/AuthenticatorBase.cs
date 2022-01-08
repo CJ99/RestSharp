@@ -1,4 +1,4 @@
-//   Copyright © 2009-2020 John Sheehan, Andrew Young, Alexey Zimarev and RestSharp community
+//   Copyright © 2009-2021 John Sheehan, Andrew Young, Alexey Zimarev and RestSharp community
 //
 //   Licensed under the Apache License, Version 2.0 (the "License");
 //   you may not use this file except in compliance with the License.
@@ -12,16 +12,15 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License. 
 
-namespace RestSharp.Authenticators
-{
-    public abstract class AuthenticatorBase : IAuthenticator
-    {
-        protected AuthenticatorBase(string token) => Token = token;
+namespace RestSharp.Authenticators;
 
-        protected string Token { get; }
+public abstract class AuthenticatorBase : IAuthenticator {
+    protected AuthenticatorBase(string token) => Token = token;
 
-        protected abstract Parameter GetAuthenticationParameter(string accessToken);
+    protected string Token { get; set; }
 
-        public void Authenticate(IRestClient client, IRestRequest request) => request.AddOrUpdateParameter(GetAuthenticationParameter(Token));
-    }
+    protected abstract ValueTask<Parameter> GetAuthenticationParameter(string accessToken);
+
+    public async ValueTask Authenticate(RestClient client, RestRequest request)
+        => request.AddOrUpdateParameter(await GetAuthenticationParameter(Token));
 }

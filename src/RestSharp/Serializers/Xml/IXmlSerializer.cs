@@ -1,4 +1,4 @@
-﻿//   Copyright © 2009-2020 John Sheehan, Andrew Young, Alexey Zimarev and RestSharp community
+﻿//   Copyright © 2009-2021 John Sheehan, Andrew Young, Alexey Zimarev and RestSharp community
 //
 //   Licensed under the Apache License, Version 2.0 (the "License");
 //   you may not use this file except in compliance with the License.
@@ -12,14 +12,8 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License. 
 
-using RestSharp.Serializers;
+namespace RestSharp.Serializers.Xml;
 
-namespace RestSharp.Serialization.Xml
-{
-    public interface IXmlSerializer : ISerializer, IWithRootElement
-    {
-        string Namespace { get; set; }
-
-        string DateFormat { get; set; }
-    }
+public interface IXmlSerializer : ISerializer {
+    string? Namespace { get; set; }
 }

@@ -1,30 +1,35 @@
-using System.Collections.Generic;
-using System.Linq;
-using FluentAssertions;
-using NUnit.Framework;
-namespace RestSharp.Tests
-{
-    [TestFixture]
-    public class ParametersTests
-    {
-        const string BaseUrl = "http://localhost:8888/";
+using System.Collections;
+
+namespace RestSharp.Tests;
+
+public class ParametersTests {
+    const string BaseUrl = "http://localhost:8888/";
+
+    [Fact]
+    public void AddDefaultHeadersUsingDictionary() {
+        var headers = new Dictionary<string, string> {
+            { KnownHeaders.ContentType, "application/json" },
+            { KnownHeaders.Accept, "application/json" },
+            { KnownHeaders.ContentEncoding, "gzip, deflate" }
+        };
+
+        var expected = headers.Select(x => new HeaderParameter(x.Key, x.Value));
+
+        var client = new RestClient(BaseUrl);
+        client.AddDefaultHeaders(headers);
+
+        var actual = client.DefaultParameters.Select(x => x as HeaderParameter);
+        expected.Should().BeSubsetOf(actual);
+    }
+
+    [Fact]
+    public void AddUrlSegmentWithInt() {
+        const string name = "foo";
+
+        var request  = new RestRequest().AddUrlSegment(name, 1);
+        var actual   = request.Parameters.FirstOrDefault(x => x.Name == name);
+        var expected = new UrlSegmentParameter(name, "1");
         
-        [Test]
-        public void AddDefaultHeadersUsingDictionary()
-        {
-            var headers = new Dictionary<string, string>
-            {
-                {"Content-Type", "application/json"},
-                {"Accept", "application/json"},
-                {"Content-Encoding", "gzip, deflate"}
-            };
-
-            var expected = headers.Select(x => new Parameter(x.Key, x.Value, ParameterType.HttpHeader));
-
-            var client = new RestClient(BaseUrl);
-            client.AddDefaultHeaders(headers);
-            
-            expected.Should().BeSubsetOf(client.DefaultParameters);
-        }
+        expected.Should().BeEquivalentTo(actual);
     }
 }

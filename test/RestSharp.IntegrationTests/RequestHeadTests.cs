@@ -1,91 +1,65 @@
-﻿using System.Collections.Specialized;
-using System.Linq;
-using System.Net;
-using NUnit.Framework;
+﻿using System.Net;
 using RestSharp.IntegrationTests.Fixtures;
 using RestSharp.Tests.Shared.Fixtures;
 
-namespace RestSharp.IntegrationTests
-{
-    [TestFixture]
-    public class RequestHeadTests : CaptureFixture
-    {
-        [Test]
-        public void Does_Not_Pass_Default_Credentials_When_Server_Does_Not_Negotiate()
-        {
-            const Method httpMethod = Method.GET;
+namespace RestSharp.IntegrationTests;
 
-            using var server = SimpleServer.Create(Handlers.Generic<RequestHeadCapturer>());
+public class RequestHeadTests : CaptureFixture {
+    [Fact]
+    public async Task Does_Not_Pass_Default_Credentials_When_Server_Does_Not_Negotiate() {
+        const Method httpMethod = Method.Get;
 
-            var client = new RestClient(server.Url);
+        using var server = SimpleServer.Create(Handlers.Generic<RequestHeadCapturer>());
 
-            var request = new RestRequest(RequestHeadCapturer.Resource, httpMethod)
-            {
-                UseDefaultCredentials = true
-            };
+        var client = new RestClient(new RestClientOptions(server.Url) { UseDefaultCredentials = true });
 
-            client.Execute(request);
+        var request = new RestRequest(RequestHeadCapturer.Resource, httpMethod);
 
-            Assert.NotNull(RequestHeadCapturer.CapturedHeaders);
+        await client.ExecuteAsync(request);
 
-            var keys = RequestHeadCapturer.CapturedHeaders.Keys.Cast<string>()
-                .ToArray();
+        Assert.NotNull(RequestHeadCapturer.CapturedHeaders);
 
-            Assert.False(
-                keys.Contains("Authorization"),
-                "Authorization header was present in HTTP request from client, even though server does not use the Negotiate scheme"
-            );
-        }
+        var keys = RequestHeadCapturer.CapturedHeaders.Keys.Cast<string>().ToArray();
 
-        [Test]
-        public void Does_Not_Pass_Default_Credentials_When_UseDefaultCredentials_Is_False()
-        {
-            const Method httpMethod = Method.GET;
+        Assert.False(
+            keys.Contains(KnownHeaders.Authorization),
+            "Authorization header was present in HTTP request from client, even though server does not use the Negotiate scheme"
+        );
+    }
 
-            using var server = SimpleServer.Create(Handlers.Generic<RequestHeadCapturer>(), AuthenticationSchemes.Negotiate);
+    [Fact]
+    public async Task Does_Not_Pass_Default_Credentials_When_UseDefaultCredentials_Is_False() {
+        const Method httpMethod = Method.Get;
 
-            var client = new RestClient(server.Url);
+        using var server = SimpleServer.Create(Handlers.Generic<RequestHeadCapturer>(), AuthenticationSchemes.Negotiate);
 
-            var request = new RestRequest(RequestHeadCapturer.Resource, httpMethod)
-            {
-                // UseDefaultCredentials is currently false by default,
-                // but to make the test more robust in case that ever
-                // changes, it's better to explicitly set it here.
-                UseDefaultCredentials = false
-            };
-            var response = client.Execute(request);
+        var client   = new RestClient(new RestClientOptions(server.Url) { UseDefaultCredentials = false });
+        var request  = new RestRequest(RequestHeadCapturer.Resource, httpMethod);
+        var response = await client.ExecuteAsync(request);
 
-            Assert.AreEqual(HttpStatusCode.Unauthorized, response.StatusCode);
-            Assert.Null(RequestHeadCapturer.CapturedHeaders);
-        }
+        Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+        Assert.Null(RequestHeadCapturer.CapturedHeaders);
+    }
 
-        [Test]
- #if NETCORE
-         [Ignore("Not supported for .NET Core")]
- #endif
-        public void Passes_Default_Credentials_When_UseDefaultCredentials_Is_True()
-        {
-            const Method httpMethod = Method.GET;
+    [Fact(Skip = "Doesn't work on Linux")]
+    public async Task Passes_Default_Credentials_When_UseDefaultCredentials_Is_True() {
+        const Method httpMethod = Method.Get;
 
-            using var server = SimpleServer.Create(Handlers.Generic<RequestHeadCapturer>(), AuthenticationSchemes.Negotiate);
+        using var server = SimpleServer.Create(Handlers.Generic<RequestHeadCapturer>(), AuthenticationSchemes.Negotiate);
 
-            var client = new RestClient(server.Url);
+        var client   = new RestClient(new RestClientOptions(server.Url) { UseDefaultCredentials = true });
+        var request  = new RestRequest(RequestHeadCapturer.Resource, httpMethod);
+        var response = await client.ExecuteAsync(request);
 
-            var request = new RestRequest(RequestHeadCapturer.Resource, httpMethod)
-            {
-                UseDefaultCredentials = true
-            };
-            var response = client.Execute(request);
+        response.StatusCode.ToString().Should().BeOneOf(HttpStatusCode.OK.ToString(),HttpStatusCode.Unauthorized.ToString());
+        RequestHeadCapturer.CapturedHeaders.Should().NotBeNull();
 
-            Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
-            Assert.NotNull(RequestHeadCapturer.CapturedHeaders);
+        var keys = RequestHeadCapturer.CapturedHeaders.Keys.Cast<string>().ToArray();
 
-            var keys = RequestHeadCapturer.CapturedHeaders.Keys.Cast<string>().ToArray();
-
-            Assert.True(
-                keys.Contains("Authorization"),
+        keys.Should()
+            .Contain(
+                KnownHeaders.Authorization,
                 "Authorization header not present in HTTP request from client, even though UseDefaultCredentials = true"
             );
-        }
     }
 }

@@ -1,4 +1,4 @@
-﻿//   Copyright © 2009-2020 John Sheehan, Andrew Young, Alexey Zimarev and RestSharp community
+﻿//   Copyright © 2009-2021 John Sheehan, Andrew Young, Alexey Zimarev and RestSharp community
 //
 //   Licensed under the Apache License, Version 2.0 (the "License");
 //   you may not use this file except in compliance with the License.
@@ -12,44 +12,38 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License. 
 
-using System.IO;
 using System.Text;
-using System.Xml.Serialization;
-using RestSharp.Serialization.Xml;
 
-namespace RestSharp.Deserializers
-{
+namespace RestSharp.Serializers.Xml; 
+
+/// <summary>
+/// Wrapper for System.Xml.Serialization.XmlSerializer.
+/// </summary>
+public class DotNetXmlDeserializer : IXmlDeserializer {
     /// <summary>
-    /// Wrapper for System.Xml.Serialization.XmlSerializer.
+    /// Encoding for serialized content
     /// </summary>
-    public class DotNetXmlDeserializer : IXmlDeserializer
-    {
-        /// <summary>
-        /// Encoding for serialized content
-        /// </summary>
-        public Encoding Encoding { get; set; } = Encoding.UTF8;
-        /// <summary>
-        /// Name of the root element to use when serializing
-        /// </summary>
-        public string RootElement { get; set; }
+    public Encoding Encoding { get; set; } = Encoding.UTF8;
+    
+    /// <summary>
+    /// Name of the root element to use when serializing
+    /// </summary>
+    public string? RootElement { get; set; }
 
-        /// <summary>
-        /// XML namespace to use when serializing
-        /// </summary>
-        public string Namespace { get; set; }
+    /// <summary>
+    /// XML namespace to use when serializing
+    /// </summary>
+    public string? Namespace { get; set; }
 
-        public string DateFormat { get; set; }
+    public string? DateFormat { get; set; }
 
-        public T Deserialize<T>(IRestResponse response)
-        {
-            if (string.IsNullOrEmpty(response.Content)) return default;
+    public T? Deserialize<T>(RestResponse response) {
+        if (string.IsNullOrEmpty(response.Content)) return default;
 
-            using (var stream = new MemoryStream(Encoding.GetBytes(response.Content)))
-            {
-                var serializer = new XmlSerializer(typeof(T));
+        using var stream = new MemoryStream(Encoding.GetBytes(response.Content!));
 
-                return (T) serializer.Deserialize(stream);
-            }
-        }
+        var serializer = new System.Xml.Serialization.XmlSerializer(typeof(T));
+
+        return (T?)serializer.Deserialize(stream);
     }
 }

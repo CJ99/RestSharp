@@ -1,39 +1,36 @@
 ﻿using System.Net;
-using NUnit.Framework;
 
-namespace RestSharp.Tests
-{
-    public class RestRequestTests
-    {
-        [Test]
-        public void RestRequest_Request_Property()
-        {
-            var request = new RestRequest("resource");
+namespace RestSharp.Tests;
 
-            Assert.AreEqual("resource", request.Resource);
-        }
+public class RestRequestTests {
+    [Fact]
+    public void RestRequest_Request_Property() {
+        var request = new RestRequest("resource");
 
-        [Test]
-        public void RestRequest_Test_Already_Encoded()
-        {
-            var request = new RestRequest("/api/get?query=Id%3d198&another=notencoded");
+        Assert.Equal("resource", request.Resource);
+    }
 
-            Assert.AreEqual("/api/get", request.Resource);
-            Assert.AreEqual(2, request.Parameters.Count);
-            Assert.AreEqual("query", request.Parameters[0].Name);
-            Assert.AreEqual("Id%3d198", request.Parameters[0].Value);
-            Assert.AreEqual(ParameterType.QueryStringWithoutEncode, request.Parameters[0].Type);
-            Assert.AreEqual("another", request.Parameters[1].Name);
-            Assert.AreEqual("notencoded", request.Parameters[1].Value);
-            Assert.AreEqual(ParameterType.QueryStringWithoutEncode, request.Parameters[1].Type);
-        }
+    [Fact]
+    public void RestRequest_Test_Already_Encoded() {
+        var request    = new RestRequest("/api/get?query=Id%3d198&another=notencoded");
+        var parameters = request.Parameters.ToArray();
 
-        [Test]
-        public void RestRequest_Fail_On_Exception()
-        {
-            var req = new RestRequest("nonexisting");
-            var client = new RestClient("http://localhost:12345") { ThrowOnAnyError = true };
-            Assert.Throws<WebException>(() => client.Execute(req));
-        }
+        Assert.Equal("/api/get", request.Resource);
+        Assert.Equal(2, request.Parameters.Count);
+        Assert.Equal("query", parameters[0].Name);
+        Assert.Equal("Id%3d198", parameters[0].Value);
+        Assert.Equal(ParameterType.QueryString, parameters[0].Type);
+        Assert.False(parameters[0].Encode);
+        Assert.Equal("another", parameters[1].Name);
+        Assert.Equal("notencoded", parameters[1].Value);
+        Assert.Equal(ParameterType.QueryString, parameters[1].Type);
+        Assert.False(parameters[1].Encode);
+    }
+
+    [Fact]
+    public async Task RestRequest_Fail_On_Exception() {
+        var req    = new RestRequest("nonexisting");
+        var client = new RestClient(new RestClientOptions("http://localhost:12345") { ThrowOnAnyError = true });
+        await Assert.ThrowsAsync<HttpRequestException>(() => client.ExecuteAsync(req));
     }
 }

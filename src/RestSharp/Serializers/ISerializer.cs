@@ -1,4 +1,4 @@
-﻿//   Copyright © 2009-2020 John Sheehan, Andrew Young, Alexey Zimarev and RestSharp community
+﻿//   Copyright © 2009-2021 John Sheehan, Andrew Young, Alexey Zimarev and RestSharp community
 //
 //   Licensed under the Apache License, Version 2.0 (the "License");
 //   you may not use this file except in compliance with the License.
@@ -12,11 +12,10 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License. 
 
-namespace RestSharp.Serializers
-{
-    public interface ISerializer
-    {
-        string ContentType { get; set; }
-        string Serialize(object obj);
-    }
+namespace RestSharp.Serializers;
+
+public interface ISerializer {
+    string ContentType { get; set; }
+
+    string? Serialize(object obj);
 }

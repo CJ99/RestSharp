@@ -1,4 +1,4 @@
-//   Copyright © 2009-2020 John Sheehan, Andrew Young, Alexey Zimarev and RestSharp community
+//   Copyright © 2009-2021 John Sheehan, Andrew Young, Alexey Zimarev and RestSharp community
 //
 //   Licensed under the Apache License, Version 2.0 (the "License");
 //   you may not use this file except in compliance with the License.
@@ -12,43 +12,30 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License. 
 
-// ReSharper disable CheckNamespace
+namespace RestSharp.Authenticators.OAuth2;
 
-namespace RestSharp.Authenticators
-{
+/// <summary>
+/// The OAuth 2 authenticator using the authorization request header field.
+/// </summary>
+/// <remarks>
+/// Based on http://tools.ietf.org/html/draft-ietf-oauth-v2-10#section-5.1.1
+/// </remarks>
+public class OAuth2AuthorizationRequestHeaderAuthenticator : AuthenticatorBase {
+    readonly string _tokenType;
+
     /// <summary>
-    /// The OAuth 2 authenticator using the authorization request header field.
+    /// Initializes a new instance of the <see cref="OAuth2AuthorizationRequestHeaderAuthenticator" /> class.
     /// </summary>
-    /// <remarks>
-    /// Based on http://tools.ietf.org/html/draft-ietf-oauth-v2-10#section-5.1.1
-    /// </remarks>
-    public class OAuth2AuthorizationRequestHeaderAuthenticator : AuthenticatorBase
-    {
-        readonly string _tokenType;
+    /// <param name="accessToken">The access token.</param>
+    public OAuth2AuthorizationRequestHeaderAuthenticator(string accessToken) : this(accessToken, "OAuth") { }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="OAuth2AuthorizationRequestHeaderAuthenticator" /> class.
-        /// </summary>
-        /// <param name="accessToken">
-        /// The access token.
-        /// </param>
-        public OAuth2AuthorizationRequestHeaderAuthenticator(string accessToken)
-            : this(accessToken, "OAuth") { }
+    /// <summary>
+    /// Initializes a new instance of the <see cref="OAuth2AuthorizationRequestHeaderAuthenticator" /> class.
+    /// </summary>
+    /// <param name="accessToken">The access token.</param>
+    /// <param name="tokenType">The token type.</param>
+    public OAuth2AuthorizationRequestHeaderAuthenticator(string accessToken, string tokenType) : base(accessToken) => _tokenType = tokenType;
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="OAuth2AuthorizationRequestHeaderAuthenticator" /> class.
-        /// </summary>
-        /// <param name="accessToken">
-        /// The access token.
-        /// </param>
-        /// <param name="tokenType">
-        /// The token type.
-        /// </param>
-        public OAuth2AuthorizationRequestHeaderAuthenticator(string accessToken, string tokenType)
-            : base(accessToken)
-            => _tokenType = tokenType;
-
-        protected override Parameter GetAuthenticationParameter(string accessToken)
-            => new Parameter("Authorization", $"{_tokenType} {accessToken}", ParameterType.HttpHeader);
-    }
+    protected override ValueTask<Parameter> GetAuthenticationParameter(string accessToken)
+        => new(new HeaderParameter(KnownHeaders.Authorization, $"{_tokenType} {accessToken}"));
 }

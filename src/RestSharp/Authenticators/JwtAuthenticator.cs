@@ -1,4 +1,4 @@
-//   Copyright © 2009-2020 John Sheehan, Andrew Young, Alexey Zimarev and RestSharp community
+//   Copyright © 2009-2021 John Sheehan, Andrew Young, Alexey Zimarev and RestSharp community
 //
 //   Licensed under the Apache License, Version 2.0 (the "License");
 //   you may not use this file except in compliance with the License.
@@ -12,33 +12,24 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License. 
 
-using RestSharp.Validation;
+namespace RestSharp.Authenticators; 
 
-namespace RestSharp.Authenticators
-{
+/// <summary>
+/// JSON WEB TOKEN (JWT) Authenticator class.
+/// <remarks>https://tools.ietf.org/html/draft-ietf-oauth-json-web-token</remarks>
+/// </summary>
+public class JwtAuthenticator : AuthenticatorBase {
+    public JwtAuthenticator(string accessToken) : base(GetToken(accessToken)) { }
+
     /// <summary>
-    /// JSON WEB TOKEN (JWT) Authenticator class.
-    /// <remarks>https://tools.ietf.org/html/draft-ietf-oauth-json-web-token</remarks>
+    /// Set the new bearer token so the request gets the new header value
     /// </summary>
-    public class JwtAuthenticator : IAuthenticator
-    {
-        string _authHeader;
+    /// <param name="accessToken"></param>
+    [PublicAPI]
+    public void SetBearerToken(string accessToken) => Token = GetToken(accessToken);
 
-        // ReSharper disable once IntroduceOptionalParameters.Global
-        public JwtAuthenticator(string accessToken) => SetBearerToken(accessToken);
+    static string GetToken(string accessToken) => $"Bearer {Ensure.NotEmpty(accessToken, nameof(accessToken))}";
 
-        /// <summary>
-        /// Set the new bearer token so the request gets the new header value
-        /// </summary>
-        /// <param name="accessToken"></param>
-        public void SetBearerToken(string accessToken)
-        {
-            Ensure.NotEmpty(accessToken, nameof(accessToken));
-
-            _authHeader = $"Bearer {accessToken}";
-        }
-
-        public void Authenticate(IRestClient client, IRestRequest request)
-            => request.AddOrUpdateParameter("Authorization", _authHeader, ParameterType.HttpHeader);
-    }
+    protected override ValueTask<Parameter> GetAuthenticationParameter(string accessToken)
+        => new(new HeaderParameter(KnownHeaders.Authorization, accessToken));
 }

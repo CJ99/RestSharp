@@ -1,9 +1,22 @@
 # RestSharp - Simple .NET REST Client 
 
+## RestSharp vNext
+
+Finally, RestSharp has moved to `HttpClient`. We also deprecated the following:
+- All sync calls in favour of async calls
+- SimpleJson in favour of `System.Text.Json.JsonSerialzer`
+- `IRestClient`, `IRestRequest`, and `IRestResponse` in favour of implementing classes
+- Everything `Http` and `IHttp` as those are just wrappers
+
+Most of the client and some of the request options are now in `RestClientOptions`.
+
+Check [v107 docs](https://restsharp.dev/v107) for more information.
+
+### Build
+
 | | |
 |-|-|
 | dev | [![](https://img.shields.io/github/workflow/status/restsharp/RestSharp/Build%20and%20deploy)](https://github.com/restsharp/RestSharp/actions?query=workflow%3A%22Build+and+deploy%22) |
-| docs | [![Netlify Status](https://img.shields.io/netlify/ae5b8e6e-32d9-4cdc-8a39-ca12ff2948f3?label=docs)](https://app.netlify.com/sites/restsharp/deploys) |
 
 ### Nuget
 
@@ -12,6 +25,12 @@
 | downloads | ![](https://img.shields.io/nuget/dt/RestSharp) |
 | stable | ![](https://img.shields.io/nuget/v/RestSharp) |
 | preview | ![](https://img.shields.io/nuget/vpre/RestSharp) |
+
+### Support
+
+RestSharp is an open-source project with a single maintainer. Do not expect your issue to be resolved unless it concerns a large group of RestSharp users.
+The best way to resolve your issue is to fix it yourself. Fork the repository and submit a pull request.
+You can also motivate the maintainer by sponsoring this project.
 
 ### Get help
 
